@@ -2,10 +2,6 @@
 <?eclipse-pydev version="1.0"?><pydev_project>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/${PROJECT_DIR_NAME}</path>
-<path>/ExcelToWiki/poi-3.13-beta1-20150723.jar</path>
-<path>/ExcelToWiki/poi-ooxml-3.13-beta1-20150723.jar</path>
-<path>/ExcelToWiki/xmlbeans-2.6.0.jar</path>
-<path>/ExcelToWiki/poi-ooxml-schemas-3.13-beta1-20150723.jar</path>
 </pydev_pathproperty>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.7</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
