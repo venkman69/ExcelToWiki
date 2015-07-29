@@ -53,13 +53,17 @@ def HTMLColorToRGB(colorstring):
     return r, g, b
 
 def getWorkbookColors(wb):
+    """gets themed colors from the workbook by inspecting the xml 
+      Code obtained from: 
+          https://groups.google.com/forum/#!topic/openpyxl-users/v2FDsbDDTqU
+      """
     xlmns = 'http://schemas.openxmlformats.org/drawingml/2006/main'
     root = fromstring(wb.loaded_theme)
     themeEl = root.find(QName(xlmns, 'themeElements').text)
     colorSchemes = themeEl.findall(QName(xlmns, 'clrScheme').text)
     firstColorScheme = colorSchemes[0]
 
-    embeddedColors = firstColorScheme.getchildren()
+#     embeddedColors = firstColorScheme.getchildren()
     colors=[]
 #     for col in firstColorScheme.getchildren():
 #         hexstr=col.getchildren()[0].attrib['val']
@@ -191,12 +195,19 @@ class excelToWiki():
     WBCOLORS=None
      
     def __init__(self,wb_name,shtnames=[],capfgcolor=None,capbgcolor=None): 
+        """shtnames: <list> Specify sheet names to convert
+           capfgcolor: caption foreground color in html hex color format (eg: '#FF0000' or 'red') 
+           capbgcolor: caption background color in html hex color format (eg: '#00FF00' or 'yellow') 
+        """
         try:
             self.wb = load_workbook(wb_name,data_only=True)
         except:
             print sys.exc_info()
             raise Exception("Could not load excel workbook")
-        self.sheetnames=self.wb.get_sheet_names()
+        if len(shtnames)>0:
+            self.sheetnames=shtnames
+        else:
+            self.sheetnames=self.wb.get_sheet_names()
         self.WBCOLORS=getWorkbookColors(self.wb)
         self.wikitblmap=OrderedDict({})
         wikitbl=""
@@ -207,6 +218,8 @@ class excelToWiki():
         for shtname in self.sheetnames:
             ws=self.wb.get_sheet_by_name(shtname)
             assert isinstance(ws, Worksheet)
+            if ws == None:
+                continue
             colwidths = getColumnWidths(ws)
             wikitbl="{|\n|+ %s %s\n"%(capstyle,shtname)
             firstrow=True
@@ -241,11 +254,3 @@ class excelToWiki():
             return self.wikitblmap[shtname]
         else:
             return None
-
-if __name__ == '__main__':
-    e2w= excelToWiki("../test.xlsx")
-    print e2w.sheetnames
-    print e2w.getSheet("Sheet1")
-    
-    
-    
