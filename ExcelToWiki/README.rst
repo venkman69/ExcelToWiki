@@ -15,3 +15,15 @@ Use is trivial as shown below::
 Options are::
 	>>> exceltowiki(excelworkbook, [list of sheet names to process], caption foreground color, caption background color)
 Caption is the sheet name.
+
+Features
+--------
+
+exceltowiki can capture:
+- Font styling: bold, underline, strikethrough
+- Cell styling: foregroudn color, background color
+- Sheet features: merged cells are captured, sheet name is captured as caption to the wiki table
+
+
+exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured.
+
