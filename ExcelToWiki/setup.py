@@ -6,7 +6,7 @@ Created on Jul 28, 2015
 from setuptools import setup
 
 setup(name='exceltowiki',
-      version='0.1.3',
+      version='0.1.4',
       description='Convert Excel to Wiki while maintaining formatting',
       url='http://github.com/venkman69/ExcelToWiki',
       author='Narayan Natarajan',
