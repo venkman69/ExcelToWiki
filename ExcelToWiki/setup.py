@@ -15,6 +15,5 @@ setup(name='exceltowiki',
       packages=['exceltowiki'],
       install_requires=[
           'openpyxl',
-          'xml.etree.ElementTree'
       ],
       zip_safe=False)

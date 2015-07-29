@@ -14,7 +14,18 @@ import re
 from collections import OrderedDict
 import sys
 
-
+__all__=[
+        "excelToWiki",
+        "RGBToHTMLColor",
+        "HTMLColorToRGB",
+        "getWorkbookColors",
+        "isHTMLHexColor",
+        "getCellColor",
+        "wikiCellStyle",
+        "getColRowSpan",
+        "cellToWiki"
+        "getColumnWidths" 
+         ]
 def RGBToHTMLColor(rgb_tuple):
     """ convert an (R, G, B) tuple to #RRGGBB 
     Code from:
@@ -41,7 +52,7 @@ def HTMLColorToRGB(colorstring):
     r, g, b = [int(n, 16) for n in (r, g, b)]
     return r, g, b
 
-def getColors(wb):
+def getWorkbookColors(wb):
     xlmns = 'http://schemas.openxmlformats.org/drawingml/2006/main'
     root = fromstring(wb.loaded_theme)
     themeEl = root.find(QName(xlmns, 'themeElements').text)
@@ -186,7 +197,7 @@ class excelToWiki():
             print sys.exc_info()
             raise Exception("Could not load excel workbook")
         self.sheetnames=self.wb.get_sheet_names()
-        self.WBCOLORS=getColors(self.wb)
+        self.WBCOLORS=getWorkbookColors(self.wb)
         self.wikitblmap=OrderedDict({})
         wikitbl=""
         if capfgcolor==None: capfgcolor="black"
