@@ -194,13 +194,15 @@ class excelToWiki():
     wikitblmap=None
     WBCOLORS=None
      
-    def __init__(self,wb_name,shtnames=[],capfgcolor=None,capbgcolor=None): 
-        """shtnames: <list> Specify sheet names to convert
+    def __init__(self,wb,shtnames=[],capfgcolor=None,capbgcolor=None): 
+        """
+           wb can be a name/path to excel file or a file like object
+           shtnames: <list> Specify sheet names to convert
            capfgcolor: caption foreground color in html hex color format (eg: '#FF0000' or 'red') 
            capbgcolor: caption background color in html hex color format (eg: '#00FF00' or 'yellow') 
         """
         try:
-            self.wb = load_workbook(wb_name,data_only=True)
+            self.wb = load_workbook(wb,data_only=True)
         except:
             print sys.exc_info()
             raise Exception("Could not load excel workbook")
@@ -225,10 +227,6 @@ class excelToWiki():
             firstrow=True
             for row in ws.iter_rows():
                 if firstrow:
-                    if len(row) > len(colwidths):
-                        padding=len(row)-len(colwidths)
-                        colwidths.extend([None for i in range(padding+1)])
-
                     for cell in row:
                         col,rownum=coordinate_from_string(cell.coordinate)
                         width=None
