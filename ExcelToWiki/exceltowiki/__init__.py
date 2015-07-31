@@ -118,12 +118,13 @@ def getCellColor(fg,WBCOLORS):
             return None
 
         finhex=RGBToHTMLColor((finrgb[0]*255,finrgb[1]*255,finrgb[2]*255))
+        if finhex== "#000000":
+            #default is black
+            return None
         return finhex
 def wikiCellStyle(fg,bg,font=None,bold=False,italics=False,underline=False,strikethrough=False,width=None,colspan=0,rowspan=0):
     style=[]
     span=[]
-    if bg==None and fg==None:
-        return ""
     if bg != None:
         style.append("background-color:%s"%bg)
     if fg != None:
@@ -223,7 +224,7 @@ class excelToWiki():
             if ws == None:
                 continue
             colwidths = getColumnWidths(ws)
-            wikitbl="{|\n|+ %s %s\n"%(capstyle,shtname)
+            wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,shtname)
             firstrow=True
             for row in ws.iter_rows():
                 if firstrow:
