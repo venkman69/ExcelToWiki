@@ -27,6 +27,11 @@ exceltowiki can capture:
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured.
 
+
+Release Notes: 0.1.6
+--------------------
+Minor: black was being ignored for bg color as well. Instead of only the fg color
+
 Release Notes: 0.1.5
 --------------------
 * Added border as default.
