@@ -118,9 +118,6 @@ def getCellColor(fg,WBCOLORS):
             return None
 
         finhex=RGBToHTMLColor((finrgb[0]*255,finrgb[1]*255,finrgb[2]*255))
-        if finhex== "#000000":
-            #default is black
-            return None
         return finhex
 def wikiCellStyle(fg,bg,font=None,bold=False,italics=False,underline=False,strikethrough=False,width=None,colspan=0,rowspan=0):
     style=[]
@@ -171,6 +168,8 @@ def cellToWiki(cell,WBCOLORS,ws, width=None):
             return ""
     bg=getCellColor(cell.fill.fgColor, WBCOLORS)
     fg=getCellColor(cell.font.color, WBCOLORS)
+    if fg== "#000000":
+        fg=None
     bold = cell.font.b
     italics = cell.font.i
     underline = cell.font.u
