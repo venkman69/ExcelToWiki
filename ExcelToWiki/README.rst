@@ -2,7 +2,7 @@ ExcelToWiki
 -----------
 
 
-Use is trivial as shown below::
+Use is trivial as shown below::python
     from exceltowiki import exceltowiki
     e2w = excelToWiki("./test.xlsx")
     # print sheet names in the excel workbook
