@@ -3,6 +3,7 @@ ExcelToWiki
 
 
 Use is trivial as shown below::
+
     from exceltowiki import exceltowiki
     e2w = excelToWiki("./test.xlsx")
     # print sheet names in the excel workbook
@@ -13,8 +14,10 @@ Use is trivial as shown below::
     print e2w.getWorkbook()
 
 Options are::
+
     exceltowiki(excelworkbook, [list of sheet names to process], caption foreground color, caption background color)
-Caption is the sheet name.
+
+Where caption is set from the sheet name (no way to currently modify this).
 
 Features
 --------
