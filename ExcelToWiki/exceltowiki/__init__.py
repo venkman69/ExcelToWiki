@@ -21,7 +21,7 @@ __all__=[
         "getWorkbookColors",
         "isHTMLHexColor",
         "getCellColor",
-        "wikiCellStyle",
+        "wikiStyle",
         "getColRowSpan",
         "cellToWiki"
         "getColumnWidths" 
@@ -119,31 +119,37 @@ def getCellColor(fg,WBCOLORS):
 
         finhex=RGBToHTMLColor((finrgb[0]*255,finrgb[1]*255,finrgb[2]*255))
         return finhex
-def wikiCellStyle(fg,bg,font=None,bold=False,italics=False,underline=False,strikethrough=False,width=None,colspan=0,rowspan=0):
-    style=[]
+def wikiStyle(style,passthrough=None):
+# def wikiStyle(stylefg,bg,font=None,bold=False,italics=False,underline=False,strikethrough=False,width=None,colspan=0,rowspan=0):
+    """ passthrough is a list of uninspected style items"""
     span=[]
-    if bg != None:
-        style.append("background-color:%s"%bg)
-    if fg != None:
-        style.append("color:%s"%fg)
-    if font != None:
-        style.append("font-family:%s"%font)
-    if bold:
-        style.append("font-weight:bold")
-    if italics:
-        style.append("font-style:italic")
-    if underline:
-        style.append("text-decoration:underline")
-    elif strikethrough:
-        style.append("text-decoration:line-through")
-    if width:
-        style.append("width:%sin"%(width/12))
-    if colspan > 1:
-        span.append("colspan=%s"%(colspan))
-    if rowspan > 1:
-        span.append("rowspan=%s"%(rowspan))
+    resstyle=[]
+    if style.has_key("bg") and style["bg"] != None:
+        resstyle.append("background-color:%s"%style["bg"])
+    if style.has_key("fg") and style["fg"] != None:
+        resstyle.append("color:%s"%style["fg"])
+    if style.has_key("font"):
+        resstyle.append("font-family:%s"%style["font"])
+    if style.has_key("bold") and style["bold"]:
+        resstyle.append("font-weight:bold")
+    if style.has_key("italics") and style["italics"]:
+        resstyle.append("font-style:italic")
+    if style.has_key("underline") and style["underline"]:
+        resstyle.append("text-decoration:underline")
+    elif style.has_key("strikethrough") and style["strikethrough"]:
+        resstyle.append("text-decoration:line-through")
+    if style.has_key("width") and style['width'] != None:
+        resstyle.append("width:%sin"%(style["width"]/12))
+    if style.has_key("colspan") and style["colspan"] !=None:
+        span.append("colspan=%s"%(style["colspan"]))
+    if style.has_key("rowspan") and style["rowspan"] !=None:
+        span.append("rowspan=%s"%(style["rowspan"]))
+    if passthrough:
+        resstyle.extend(passthrough)
+    if len(span) == 0 and len(resstyle)==0:
+        return ""
+    return """%s style="%s" """%(" ".join(span),  ";".join(resstyle))
 
-    return """|%s style="%s" """%(" ".join(span),  ";".join(style))
 def getColRowSpan(mergeDef):
     #merge def is like A1:B2
     cells = mergeDef.split(":")
@@ -153,6 +159,10 @@ def getColRowSpan(mergeDef):
     eC = column_index_from_string(eC)
     colspan= int(eC) - int(sC) + 1
     rowspan = int(eR) - int(sR) + 1
+    if colspan == 1:
+        colspan=None
+    if rowspan == 1:
+        rowspan=None
     return colspan, rowspan
 
 def cellToWiki(cell,WBCOLORS,ws, width=None):
@@ -176,7 +186,7 @@ def cellToWiki(cell,WBCOLORS,ws, width=None):
     strike=cell.font.strikethrough
     font_name= cell.font.name
     
-    wikicellstr= wikiCellStyle(fg, bg,font_name,bold,italics,underline,strike,width,colspan,rowspan)
+    wikicellstr= "|"+wikiStyle(fg, bg,font_name,bold,italics,underline,strike,width,colspan,rowspan)
     
     if cell.value != None:
         wikicellstr+="|"+str(cell.value)+"\n"
@@ -184,7 +194,149 @@ def cellToWiki(cell,WBCOLORS,ws, width=None):
         wikicellstr+="|\n"
     return wikicellstr    
 
+class wikiCell():
+    wikicellstr=None
+    bg=None
+    fg=None
+    underline=None
+    strike=None
+    font_name=None
+    bold=None
+    value=None
+    style=None
+    merged=False
+    def __init__(self,cell,WBCOLORS,ws):
+        colspan=None
+        rowspan=None
+        self.col,rownum=coordinate_from_string(cell.coordinate)
+        self.style={}
+        self.width=None
+#         if rownum == 1:
+#             if colwidths.has_key(col):
+#                 self.width=colwidths[col]
+            
+        if cell.coordinate in ws.merged_cells:
+            for mrange in ws.merged_cell_ranges:
+                if mrange.startswith(cell.coordinate):
+                    colspan,rowspan=getColRowSpan(mrange)
+                    break
+            else:
+                self.merged=True
+                return
+                
+        self.cell = cell
+        self.value = cell.value
+        self.bg=getCellColor(cell.fill.fgColor, WBCOLORS)
+        self.fg=getCellColor(cell.font.color, WBCOLORS)
+        if self.fg== "#000000":
+            self.fg=None
+        self.bold = cell.font.b
+        self.italics = cell.font.i
+        self.underline = cell.font.u
+        self.strike=cell.font.strikethrough
+        self.font_name= cell.font.name
+
+        self.style["bg"]=self.bg
+        self.style["fg"]=self.fg
+        self.style["underline"]=self.underline
+        self.style["strike"]=self.strike
+        self.style["font_name"]=self.font_name
+        self.style["bold"]=self.bold
+        self.style["colspan"]=colspan
+        self.style["rowspan"]=rowspan
+        self.style["width"]=self.width
+    
+    def getWikiStr(self,rowstyle=[],colwidths=None): 
+        if self.merged:
+            return ""
+        cellstyle={}
+        for style in self.style:
+            if style not in rowstyle:
+                cellstyle[style]=self.style[style]
+        if colwidths!=None and colwidths[self.col] != None:
+            cellstyle["width"]=colwidths[self.col]
+            
+        wikicellstr= "|"+wikiStyle(cellstyle)
+        
+        if self.value != None:
+            wikicellstr+="|"+str(self.value)+"\n"
+        else:
+            wikicellstr+="|\n"
+        return wikicellstr    
+
+class wikiRow():
+    style=None
+    rowwiki=""
+    def __init__(self,row, WBCOLORS, ws):
+        celllist=[]
+        styleList=[]
+        for cell in row:
+            wcell=wikiCell(cell,WBCOLORS,ws)
+            celllist.append(wcell)
+            styleList.append(wcell.style)
+        # resolve common styles
+        self.style = commonStyle(styleList)
+        col,rownum=coordinate_from_string(cell.coordinate)
+        if rownum==1:
+            colwidths = getColumnWidths(ws)
+            if colwidths.has_key(col):
+                width=colwidths[col]
+        else:
+            colwidths=None
+        for cell in celllist:
+            self.rowwiki+=cell.getWikiStr(self.style.keys(),colwidths)
+
+    def getWikiStr(self,tblstyle=[]): 
+        rowstyle={}
+            
+        for styleItem in self.style:
+            if styleItem not in tblstyle:
+                rowstyle[styleItem]=self.style[styleItem]
+        wikirowstr= "|-%s\n"%wikiStyle(rowstyle)
+        wikirowstr+=self.rowwiki
+        return wikirowstr
+    
+class wikiTbl():
+    style=None
+    tblwiki=""
+    rowList=None
+    def __init__(self,ws,WBCOLORS,capstyle):
+        assert isinstance(ws, Worksheet)
+        shtname=ws.title
+        wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,shtname)
+        self.rowList=[]
+        styleList=[]
+        for row in ws.iter_rows():
+            wrow=wikiRow(row, WBCOLORS, ws)
+            self.rowList.append(wrow)
+            styleList.append(wrow.style)
+        self.style = commonStyle(styleList)
+
+    def getWikiStr(self):
+        wikitblstr="{| border=1 %s\n" % wikiStyle(self.style,["border-collapse: collapse; border-color: #aaaaaa"]) 
+        for row in self.rowList:
+            wikitblstr+=row.getWikiStr(self.style.keys())
+        wikitblstr+="|}"
+        return wikitblstr
+
+def commonStyle(styleList):
+    comstyle={}
+    for style in styleList:
+        for key,val in style.iteritems():
+            if comstyle.has_key(key):
+                comstyle[key].append(val)
+            else:
+                comstyle[key]=[val]
+    cunique={}
+    for ck,cv in comstyle.iteritems():
+        scv = list(set(cv))
+        if len(cv) == len(styleList) and len(scv)==1 and scv[0] != None and scv[0] != False and scv[0] != 0:
+            cunique[ck]=scv[0]
+    return cunique
+
+
 def getColumnWidths(ws):
+    """returns column widths of a worksheet"""
     colwidths={k:v.width for k,v in ws.column_dimensions.iteritems()}
     return colwidths
 
@@ -194,7 +346,7 @@ class excelToWiki():
     wikitblmap=None
     WBCOLORS=None
      
-    def __init__(self,wb,shtnames=[],capfgcolor=None,capbgcolor=None): 
+    def __init__(self,wb,shtnames=[],headerRow=None,capfgcolor=None,capbgcolor=None): 
         """
            wb can be a name/path to excel file or a file like object
            shtnames: <list> Specify sheet names to convert
@@ -222,24 +374,26 @@ class excelToWiki():
             assert isinstance(ws, Worksheet)
             if ws == None:
                 continue
-            colwidths = getColumnWidths(ws)
-            wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,shtname)
-            firstrow=True
-            for row in ws.iter_rows():
-                if firstrow:
-                    for cell in row:
-                        col,rownum=coordinate_from_string(cell.coordinate)
-                        width=None
-                        if colwidths.has_key(col):
-                            width=colwidths[col]
-                        wikitbl+=cellToWiki(cell, self.WBCOLORS, ws, width)
-                    firstrow=False    
-                else:
-                    for cell in row:
-                        wikitbl+= cellToWiki(cell,self.WBCOLORS, ws)
-                wikitbl+="|-\n"
-            wikitbl+="|}\n"
-            self.wikitblmap[shtname]=wikitbl
+            wt=wikiTbl(ws, self.WBCOLORS, capstyle)
+#             colwidths = getColumnWidths(ws)
+#             wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,shtname)
+#             firstrow=True
+#             for row in ws.iter_rows():
+#                 wikitbl+= wikiRow(row, self.WBCOLORS, ws)
+#                 if firstrow:
+#                     for cell in row:
+#                         col,rownum=coordinate_from_string(cell.coordinate)
+#                         width=None
+#                         if colwidths.has_key(col):
+#                             width=colwidths[col]
+#                         wikitbl+=cellToWiki(cell, self.WBCOLORS, ws, width)
+#                     firstrow=False    
+#                 else:
+#                     for cell in row:
+#                         wikitbl+= cellToWiki(cell,self.WBCOLORS, ws)
+#                 wikitbl+="|-\n"
+#             wikitbl+="|}\n"
+            self.wikitblmap[shtname]=wt.getWikiStr()
 
     def getWorkbook(self):
         wikitext=""
@@ -252,3 +406,6 @@ class excelToWiki():
             return self.wikitblmap[shtname]
         else:
             return None
+if __name__ == '__main__':
+    e2w = excelToWiki("../example/test.xlsx",["Sheet1"],"blue","yellow")
+    print e2w.getSheet("Sheet1")
