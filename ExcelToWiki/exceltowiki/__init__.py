@@ -256,12 +256,15 @@ class wikiCell():
         if colwidths!=None and colwidths[self.col] != None:
             cellstyle["width"]=colwidths[self.col]
             
-        wikicellstr= "|"+wikiStyle(cellstyle)
+        wikiCellStyle= wikiStyle(cellstyle)
         
         if self.value != None:
-            wikicellstr+="|"+str(self.value)+"\n"
+            wikicellstr="|"
+            if wikiCellStyle != "":
+                wikicellstr += wikiCellStyle + "|"
+            wikicellstr+=str(self.value)+"\n"
         else:
-            wikicellstr+="|\n"
+            wikicellstr="|\n"
         return wikicellstr    
 
 class wikiRow():
@@ -375,24 +378,6 @@ class excelToWiki():
             if ws == None:
                 continue
             wt=wikiTbl(ws, self.WBCOLORS, capstyle)
-#             colwidths = getColumnWidths(ws)
-#             wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,shtname)
-#             firstrow=True
-#             for row in ws.iter_rows():
-#                 wikitbl+= wikiRow(row, self.WBCOLORS, ws)
-#                 if firstrow:
-#                     for cell in row:
-#                         col,rownum=coordinate_from_string(cell.coordinate)
-#                         width=None
-#                         if colwidths.has_key(col):
-#                             width=colwidths[col]
-#                         wikitbl+=cellToWiki(cell, self.WBCOLORS, ws, width)
-#                     firstrow=False    
-#                 else:
-#                     for cell in row:
-#                         wikitbl+= cellToWiki(cell,self.WBCOLORS, ws)
-#                 wikitbl+="|-\n"
-#             wikitbl+="|}\n"
             self.wikitblmap[shtname]=wt.getWikiStr()
 
     def getWorkbook(self):
@@ -406,6 +391,3 @@ class excelToWiki():
             return self.wikitblmap[shtname]
         else:
             return None
-if __name__ == '__main__':
-    e2w = excelToWiki("../example/test.xlsx",["Sheet1"],"blue","yellow")
-    print e2w.getSheet("Sheet1")
