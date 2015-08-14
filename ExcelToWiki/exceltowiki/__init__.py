@@ -23,7 +23,6 @@ __all__=[
         "getCellColor",
         "wikiStyle",
         "getColRowSpan",
-        "cellToWiki"
         "getColumnWidths" 
          ]
 def RGBToHTMLColor(rgb_tuple):
@@ -68,8 +67,10 @@ def getWorkbookColors(wb):
 #     for col in firstColorScheme.getchildren():
 #         hexstr=col.getchildren()[0].attrib['val']
 #         colors.append(hexstr)
-    for c in ['lt1', 'dk1', 'lt2', 'dk2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6']:
+    for c in ['lt1', 'dk1', 'lt2', 'dk2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6','hlink', 'folHlink']:
         accent = firstColorScheme.find(QName(xlmns, c).text)
+        if accent == None:
+            continue
         if 'window' in accent.getchildren()[0].attrib['val']:
             colors.append(accent.getchildren()[0].attrib['lastClr'])
         else:
@@ -136,7 +137,7 @@ def wikiStyle(style,passthrough=None):
         resstyle.append("font-style:italic")
     if style.has_key("underline") and style["underline"]:
         resstyle.append("text-decoration:underline")
-    elif style.has_key("strikethrough") and style["strikethrough"]:
+    elif style.has_key("strike") and style["strike"]:
         resstyle.append("text-decoration:line-through")
     if style.has_key("width") and style['width'] != None:
         resstyle.append("width:%sin"%(style["width"]/12))
@@ -165,34 +166,6 @@ def getColRowSpan(mergeDef):
         rowspan=None
     return colspan, rowspan
 
-def cellToWiki(cell,WBCOLORS,ws, width=None):
-    # if cell is part of merged cells and is not the first one, then skip
-    colspan=0
-    rowspan=0
-    if cell.coordinate in ws.merged_cells:
-        for mrange in ws.merged_cell_ranges:
-            if mrange.startswith(cell.coordinate):
-                colspan,rowspan=getColRowSpan(mrange)
-                break
-        else:
-            return ""
-    bg=getCellColor(cell.fill.fgColor, WBCOLORS)
-    fg=getCellColor(cell.font.color, WBCOLORS)
-    if fg== "#000000":
-        fg=None
-    bold = cell.font.b
-    italics = cell.font.i
-    underline = cell.font.u
-    strike=cell.font.strikethrough
-    font_name= cell.font.name
-    
-    wikicellstr= "|"+wikiStyle(fg, bg,font_name,bold,italics,underline,strike,width,colspan,rowspan)
-    
-    if cell.value != None:
-        wikicellstr+="|"+str(cell.value)+"\n"
-    else:
-        wikicellstr+="|\n"
-    return wikicellstr    
 
 class wikiCell():
     wikicellstr=None
@@ -225,7 +198,20 @@ class wikiCell():
                 return
                 
         self.cell = cell
-        self.value = cell.value
+        cval=""
+        try:
+            if isinstance(cell.value, unicode):
+                cval=cell.value
+            else:
+                cval=unicode(cell.value,'utf-8')
+        except:
+                cval="" # not sure what to do here
+            
+        if "http" in cval.lower():
+            #wrap value in [ ]
+            cval="["+cval+"]"
+        
+        self.value = cval
         self.bg=getCellColor(cell.fill.fgColor, WBCOLORS)
         self.fg=getCellColor(cell.font.color, WBCOLORS)
         if self.fg== "#000000":
@@ -305,8 +291,9 @@ class wikiTbl():
     rowList=None
     def __init__(self,ws,WBCOLORS,capstyle):
         assert isinstance(ws, Worksheet)
-        shtname=ws.title
-        wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,shtname)
+        self.shtname=ws.title
+        self.capstyle=capstyle
+        wikitbl="""{|border=1 style="border-collapse: collapse;border-color:#aaaaaa"\n|+ %s %s\n"""%(capstyle,self.shtname)
         self.rowList=[]
         styleList=[]
         for row in ws.iter_rows():
@@ -317,6 +304,7 @@ class wikiTbl():
 
     def getWikiStr(self):
         wikitblstr="{| border=1 %s\n" % wikiStyle(self.style,["border-collapse: collapse; border-color: #aaaaaa"]) 
+        wikitblstr+="|+%s %s\n"%(self.capstyle,self.shtname)
         for row in self.rowList:
             wikitblstr+=row.getWikiStr(self.style.keys())
         wikitblstr+="|}"
@@ -349,7 +337,7 @@ class excelToWiki():
     wikitblmap=None
     WBCOLORS=None
      
-    def __init__(self,wb,shtnames=[],headerRow=None,capfgcolor=None,capbgcolor=None): 
+    def __init__(self,wb,shtnames=[],capfgcolor=None,capbgcolor=None): 
         """
            wb can be a name/path to excel file or a file like object
            shtnames: <list> Specify sheet names to convert
