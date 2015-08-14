@@ -31,6 +31,23 @@ exceltowiki can capture:
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured.
 
+Release Notes: 0.1.8
+--------------------
+Added support for hyperlinks:
+
+- Unfortunately openpyxl does not yet support reading hyperlinks.
+- The way to enter hyperlinks is to place the hyperlink and wiki display text in a cell, 
+  such as: "http://yahoo.com Yahoo!"
+- Any cell containing "http" will be wrapped within []s.
+Bugs:
+-----
+
+- Caption was missing, added it back.
+- Caption style was incorrectly set. fixed.
+- unneeded parameter headerRow removed.
+- unneeded cellToWiki method removed
+
+
 Release Notes: 0.1.7
 --------------------
 Cleaner output of wiki text. 
