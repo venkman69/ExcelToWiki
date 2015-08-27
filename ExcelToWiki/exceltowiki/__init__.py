@@ -129,8 +129,8 @@ def wikiStyle(style,passthrough=None):
         resstyle.append("background-color:%s"%style["bg"])
     if style.has_key("fg") and style["fg"] != None:
         resstyle.append("color:%s"%style["fg"])
-    if style.has_key("font"):
-        resstyle.append("font-family:%s"%style["font"])
+    if style.has_key("font_name"):
+        resstyle.append("font-family:%s"%style["font_name"])
     if style.has_key("bold") and style["bold"]:
         resstyle.append("font-weight:bold")
     if style.has_key("italics") and style["italics"]:
@@ -181,7 +181,7 @@ class wikiCell():
     def __init__(self,cell,WBCOLORS,ws):
         colspan=None
         rowspan=None
-        self.col,rownum=coordinate_from_string(cell.coordinate)
+        self.col,self.rownum=coordinate_from_string(cell.coordinate)
         self.style={}
         self.width=None
 #         if rownum == 1:
@@ -226,6 +226,7 @@ class wikiCell():
         self.style["fg"]=self.fg
         self.style["underline"]=self.underline
         self.style["strike"]=self.strike
+        self.style["italics"]=self.italics
         self.style["font_name"]=self.font_name
         self.style["bold"]=self.bold
         self.style["colspan"]=colspan
@@ -244,11 +245,11 @@ class wikiCell():
             
         wikiCellStyle= wikiStyle(cellstyle)
         
-        if self.value != None:
+        if self.value != None and self.value != "":
             wikicellstr="|"
             if wikiCellStyle != "":
                 wikicellstr += wikiCellStyle + "|"
-            wikicellstr+=str(self.value)+"\n"
+            wikicellstr+="\n" + str(self.value)+"\n"
         else:
             wikicellstr="|\n"
         return wikicellstr    
