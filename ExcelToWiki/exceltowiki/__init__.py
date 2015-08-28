@@ -249,7 +249,7 @@ class wikiCell():
             wikicellstr="|"
             if wikiCellStyle != "":
                 wikicellstr += wikiCellStyle + "|"
-            wikicellstr+="\n" + str(self.value)+"\n"
+            wikicellstr+="\n" + self.value+"\n"
         else:
             wikicellstr="|\n"
         return wikicellstr    
