@@ -12,7 +12,7 @@ setup(name='exceltowiki',
       author='Narayan Natarajan',
       author_email='venkman69@yahoo.com',
       license='MIT',
-      packages=['exceltowiki','example'],
+      packages=['exceltowiki'],
       install_requires=[
           'openpyxl',
       ],
