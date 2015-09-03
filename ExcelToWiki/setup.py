@@ -6,13 +6,13 @@ Created on Jul 28, 2015
 from setuptools import setup
 
 setup(name='exceltowiki',
-      version='0.1.9',
+      version='0.1.11',
       description='Convert Excel to Wiki while maintaining formatting',
       url='http://github.com/venkman69/ExcelToWiki',
       author='Narayan Natarajan',
       author_email='venkman69@yahoo.com',
       license='MIT',
-      packages=['exceltowiki','example'],
+      packages=['exceltowiki','exceltowiki/example'],
       install_requires=[
           'openpyxl',
       ],

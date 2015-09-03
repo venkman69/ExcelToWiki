@@ -201,15 +201,16 @@ class wikiCell():
         cval=""
         try:
             if isinstance(cell.value, unicode):
-                cval=cell.value
+                cval=cell.value.strip()
             else:
-                cval=unicode(cell.value,'utf-8')
+                cval=unicode(cell.value.strip(),'utf-8')
         except:
                 cval="" # not sure what to do here
             
-        if "http" in cval.lower():
-            #wrap value in [ ]
+        # if value starts with http, then wrap it in []s,otherwise it is used verbatim
+        if cval.startswith("http://"):
             cval="["+cval+"]"
+        
         
         self.value = cval
         self.bg=getCellColor(cell.fill.fgColor, WBCOLORS)
@@ -245,13 +246,13 @@ class wikiCell():
             
         wikiCellStyle= wikiStyle(cellstyle)
         
-        if self.value != None and self.value != "":
-            wikicellstr="|"
-            if wikiCellStyle != "":
-                wikicellstr += wikiCellStyle + "|"
-            wikicellstr+="\n" + self.value+"\n"
-        else:
-            wikicellstr="|\n"
+        #if self.value != None and self.value != "":
+        wikicellstr="|"
+        if wikiCellStyle != "":
+            wikicellstr += wikiCellStyle + "|"
+        wikicellstr+="\n" + self.value+"\n"
+#         else:
+#             wikicellstr="|\n"
         return wikicellstr    
 
 class wikiRow():
@@ -304,6 +305,8 @@ class wikiTbl():
         self.style = commonStyle(styleList)
 
     def getWikiStr(self):
+        if len(self.rowList)==0:
+            return ""
         wikitblstr="{| border=1 %s\n" % wikiStyle(self.style,["border-collapse: collapse; border-color: #aaaaaa"]) 
         wikitblstr+="|+%s %s\n"%(self.capstyle,self.shtname)
         for row in self.rowList:
@@ -372,7 +375,7 @@ class excelToWiki():
     def getWorkbook(self):
         wikitext=""
         for k,v in self.wikitblmap.iteritems():
-            wikitext+=v
+            wikitext+=v+"\n"
         return wikitext
             
     def getSheet(self,shtname):
