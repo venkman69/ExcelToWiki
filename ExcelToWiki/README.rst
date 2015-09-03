@@ -31,16 +31,13 @@ exceltowiki can capture:
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured. 
 
-Release Notes: 0.1.11 
---------------------- 
-
-Minor fixes
 
 Release Notes: 0.1.10 
 --------------------- 
 
 Bug fix: Unicode was not correctly handled. 
 Packaging was not following best practice of examples within the package. 
+Minor fixes to value retrieval
 
 Release Notes: 0.1.9 
 -------------------- 
