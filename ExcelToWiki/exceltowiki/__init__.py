@@ -7,7 +7,6 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.styles.colors import Color
 from openpyxl.xml.functions import fromstring,QName
 from openpyxl.utils import coordinate_from_string, column_index_from_string
-from xml.etree.ElementTree import Element
 import colorsys
 from openpyxl.worksheet.worksheet import Worksheet
 import re
@@ -286,7 +285,9 @@ class wikiRow():
         wikirowstr= "|-%s\n"%wikiStyle(rowstyle)
         wikirowstr+=self.rowwiki
         return wikirowstr
-    
+    def __repr__(self):
+        return self.getWikiStr()
+
 class wikiTbl():
     style=None
     tblwiki=""
