@@ -30,6 +30,7 @@ setup(name='exceltowiki',
       author_email='venkman69@yahoo.com',
       license='MIT',
       packages=['exceltowiki'],
+	  py_modules=['version'],
       install_requires=[
           'openpyxl',
       ],
