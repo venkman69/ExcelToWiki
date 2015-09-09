@@ -1,7 +1,30 @@
 '''
-Created on Jul 21, 2015
+Excel to Wiki text converter
 
-@author: venkman69@yahoo.com
+@copyright: Narayan Natarajan <venkman69@yahoo.com>
+@author: venkman69
+@license:
+The MIT License (MIT)
+
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 '''
 from openpyxl.reader.excel import load_workbook
 from openpyxl.styles.colors import Color
@@ -12,6 +35,8 @@ from openpyxl.worksheet.worksheet import Worksheet
 import re
 from collections import OrderedDict
 import sys
+# use || separator instead of one cell/line
+INLINE_FMT=True
 
 __all__=[
         "excelToWiki",
@@ -210,6 +235,7 @@ class wikiCell():
         if cval.startswith("http://"):
             cval="["+cval+"]"
         
+        cval=cval.replace(u"\n", "<br/>")
         
         self.value = cval
         self.bg=getCellColor(cell.fill.fgColor, WBCOLORS)
@@ -246,10 +272,19 @@ class wikiCell():
         wikiCellStyle= wikiStyle(cellstyle)
         
         #if self.value != None and self.value != "":
-        wikicellstr="|"
-        if wikiCellStyle != "":
-            wikicellstr += wikiCellStyle + "|"
-        wikicellstr+="\n" + self.value+"\n"
+        if INLINE_FMT:
+            if self.merged:
+                return ""
+            wikicellstr=""
+            if wikiCellStyle != "":
+                wikicellstr += wikiCellStyle + "| "
+            wikicellstr+= self.value
+
+        else:
+            wikicellstr="|"
+            if wikiCellStyle != "":
+                wikicellstr += wikiCellStyle + "|"
+            wikicellstr+="\n" + self.value+"\n"
 #         else:
 #             wikicellstr="|\n"
         return wikicellstr    
@@ -273,8 +308,17 @@ class wikiRow():
                 width=colwidths[col]
         else:
             colwidths=None
-        for cell in celllist:
-            self.rowwiki+=cell.getWikiStr(self.style.keys(),colwidths)
+
+        self.rowwiki="| "
+        if INLINE_FMT:
+            cellList=[]
+            for cell in celllist:
+                if not cell.merged:
+                    cellList.append(cell.getWikiStr(self.style.keys(),colwidths))
+            self.rowwiki+="|| ".join(cellList)+"\n"
+        else:
+            for cell in celllist:
+                self.rowwiki+=cell.getWikiStr(self.style.keys(),colwidths)
 
     def getWikiStr(self,tblstyle=[]): 
         rowstyle={}
