@@ -5,15 +5,15 @@ ExcelToWiki
 Use is trivial as shown below::
 
     from exceltowiki import exceltowiki 
-	# if you want || double-pipe style wiki output then set INLINE_FMT=True (default)
-	# if you want | single-pipe line-by-line style wiki output then set INLINE_FMT=False 
-	import exceltowiki
-	exceltowiki.INLINE_FMT=True
+    # if you want || double-pipe style wiki output then set INLINE_FMT=True (default)
+    # if you want | single-pipe line-by-line style wiki output then set INLINE_FMT=False 
+    import exceltowiki
+    exceltowiki.INLINE_FMT=True
 
-	e2w = excelToWiki("./test.xlsx",["Sheet1"],"blue","yellow")
-	print e2w.sheetnames
-	print e2w.getSheet("Sheet1")
-	print e2w.getWorkbook()
+    e2w = excelToWiki("./test.xlsx",["Sheet1"],"blue","yellow")
+    print e2w.sheetnames
+    print e2w.getSheet("Sheet1")
+    print e2w.getWorkbook()
     e2w = excelToWiki("./test.xlsx") 
     # print sheet names in the excel workbook 
     print e2w.sheetnames 
