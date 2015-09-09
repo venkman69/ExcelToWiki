@@ -34,7 +34,8 @@ exceltowiki currently cannot capture anything more complex than the above list. 
 
 Release Notes: 0.1.11 
 --------------------- 
-
+Added support for inline format with double-pipe notation.
+Removed unneeded imports.
 Minor fixes to value retrieval
 
 Release Notes: 0.1.10 
