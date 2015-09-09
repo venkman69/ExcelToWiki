@@ -5,7 +5,6 @@ Created on Jul 28, 2015
 '''
 from setuptools import setup
 import subprocess
-import sys
 import os
 # Fetch version from git tags, and write to version.py.
 # Also, when git is not available (PyPi package), use stored version.py.
@@ -14,7 +13,6 @@ try:
 
     version_git = subprocess.check_output(["git", "describe"]).rstrip()
 except:
-    print sys.exc_info()
     with open(version_py, 'r') as fh:
         version_git = open(version_py).read().strip().split('=')[-1].replace('"','')
 
