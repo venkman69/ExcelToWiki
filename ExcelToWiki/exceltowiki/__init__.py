@@ -35,6 +35,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 import re
 from collections import OrderedDict
 import sys
+from datetime import datetime
 # use || separator instead of one cell/line
 INLINE_FMT=True
 
@@ -226,8 +227,17 @@ class wikiCell():
         try:
             if isinstance(cell.value, unicode):
                 cval=cell.value.strip()
+            if cell.is_date:
+                cval=self.__doDateFmt()
+            elif cell.number_format.endswith("%"):
+                dotind = cell.number_format.find(".")
+                if dotind == -1:
+                    fmtStr = "%0d%%"
+                else:
+                    fmtStr = "%" + str(dotind) + ".%d"%(len(cell.number_format) - dotind - 2) + "f%%"
+                cval = unicode(fmtStr % (cell.value * 100),'utf-8')
             else:
-                cval=unicode(cell.value.strip(),'utf-8')
+                cval=unicode(str(cell.value),'utf-8').strip()
         except:
                 cval="" # not sure what to do here
             
@@ -258,7 +268,33 @@ class wikiCell():
         self.style["colspan"]=colspan
         self.style["rowspan"]=rowspan
         self.style["width"]=self.width
-    
+    def __doDateFmt(self):
+        """Returns string representation for a few fixed formats of excel dates"""
+        # support a few popular formats but not everything
+        # since parsing m for month vs m for min seems unclear.
+        #[$-409]m/d/yy\ h:mm\ AM/PM;@
+        #m/d/yy\ h:mm;@
+        #[$-409]mmm\-yy;@
+        #[$-409]mmmm\-yy;@
+        #m/d;@
+        # [$-409] is a locale string - we will assume english for now
+        # the @ implies 'as is'
+        if "m/d/yy\ h:mm\ AM/PM" in self.cell.number_format:
+            return self.cell.value.strftime("%m/%d/%y %I:%M %p")
+        if "m/d/yy\ h:mm" in self.cell.number_format:
+            return self.cell.value.strftime("%m/%d/%y %H:%M")
+        if "mmm\-yy" in self.cell.number_format:
+            return self.cell.value.strftime("%b-%y")
+        if "mmmm\-yy" in self.cell.number_format:
+            return self.cell.value.strftime("%B-%y")
+        if "mmmm\ d\,\ yyyy" in self.cell.number_format:
+            return self.cell.value.strftime("%B %d, %Y")
+        if "m/d" in self.cell.number_format:
+            return self.cell.value.strftime("%m/%d")
+        
+        # if all else fails return a string rep of the entire datetime default
+        return str(self.cell.value)
+
     def getWikiStr(self,rowstyle=[],colwidths=None): 
         if self.merged:
             return ""
