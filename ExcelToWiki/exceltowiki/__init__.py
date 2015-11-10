@@ -302,7 +302,7 @@ class wikiCell():
         for style in self.style:
             if style not in rowstyle:
                 cellstyle[style]=self.style[style]
-        if colwidths!=None and colwidths[self.col] != None:
+        if colwidths!=None and colwidths.has_key(self.col) and colwidths[self.col] != None:
             cellstyle["width"]=colwidths[self.col]
             
         wikiCellStyle= wikiStyle(cellstyle)
@@ -328,7 +328,7 @@ class wikiCell():
 class wikiRow():
     style=None
     rowwiki=""
-    def __init__(self,row, WBCOLORS, ws):
+    def __init__(self,row, WBCOLORS, ws,preserve_width=True):
         celllist=[]
         styleList=[]
         for cell in row:
@@ -338,7 +338,7 @@ class wikiRow():
         # resolve common styles
         self.style = commonStyle(styleList)
         col,rownum=coordinate_from_string(cell.coordinate)
-        if rownum==1:
+        if preserve_width ==True and rownum==1:
             colwidths = getColumnWidths(ws)
             if colwidths.has_key(col):
                 width=colwidths[col]
@@ -372,7 +372,7 @@ class wikiTbl():
     style=None
     tblwiki=""
     rowList=None
-    def __init__(self,ws,WBCOLORS,capstyle):
+    def __init__(self,ws,WBCOLORS,capstyle,preserve_width=True):
         assert isinstance(ws, Worksheet)
         self.shtname=ws.title
         self.capstyle=capstyle
@@ -380,7 +380,7 @@ class wikiTbl():
         self.rowList=[]
         styleList=[]
         for row in ws.iter_rows():
-            wrow=wikiRow(row, WBCOLORS, ws)
+            wrow=wikiRow(row, WBCOLORS, ws,preserve_width)
             self.rowList.append(wrow)
             styleList.append(wrow.style)
         self.style = commonStyle(styleList)
@@ -422,7 +422,7 @@ class excelToWiki():
     wikitblmap=None
     WBCOLORS=None
      
-    def __init__(self,wb,shtnames=[],capfgcolor=None,capbgcolor=None): 
+    def __init__(self,wb,shtnames=[],capfgcolor=None,capbgcolor=None,preserve_width=True): 
         """
            wb can be a name/path to excel file or a file like object
            shtnames: <list> Specify sheet names to convert
@@ -450,7 +450,7 @@ class excelToWiki():
             assert isinstance(ws, Worksheet)
             if ws == None:
                 continue
-            wt=wikiTbl(ws, self.WBCOLORS, capstyle)
+            wt=wikiTbl(ws, self.WBCOLORS, capstyle,preserve_width)
             self.wikitblmap[shtname]=wt.getWikiStr()
 
     def getWorkbook(self):

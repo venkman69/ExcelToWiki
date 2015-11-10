@@ -39,6 +39,16 @@ exceltowiki can capture:
 
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured. 
+Release Notes: 0.1.15
+--------------------- 
+Added preserve_width option
+Update to latest openpyxl - note that newer openpyxl broke something in colwidth with 0.1.14
+
+Release Notes: 0.1.14
+--------------------- 
+
+Minor update
+
 
 Release Notes: 0.1.13
 --------------------- 
