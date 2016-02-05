@@ -7,7 +7,6 @@ Created on Jul 28, 2015
 from exceltowiki import excelToWiki
 import exceltowiki
 
-exceltowiki.INLINE_FMT=True
 e2w = excelToWiki("./test.xlsx",["Sheet1"],"blue","yellow")
 print e2w.sheetnames
 print e2w.getSheet("Sheet1")

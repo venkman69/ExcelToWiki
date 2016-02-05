@@ -34,11 +34,18 @@ Features
 exceltowiki can capture: 
 
 - Font styling: bold, underline, strikethrough 
-- Cell styling: foregroudn color, background color 
+- Cell styling: foreground color, background color 
 - Sheet features: merged cells are captured, sheet name is captured as caption to the wiki table 
 
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured. 
+
+Release Nots: 0.1.16
+--------------------- 
+Wiki text within a cell was not being formatted via wiki because of being inlined. Slight update to fix this.
+The 'INLINE_FMT' flag is now deprecated.
+
+
 Release Notes: 0.1.15
 --------------------- 
 Added preserve_width option

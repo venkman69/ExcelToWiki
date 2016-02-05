@@ -37,7 +37,6 @@ from collections import OrderedDict
 import sys
 from datetime import datetime
 # use || separator instead of one cell/line
-INLINE_FMT=True
 
 __all__=[
         "excelToWiki",
@@ -245,7 +244,7 @@ class wikiCell():
         if cval.startswith("http://"):
             cval="["+cval+"]"
         
-        cval=cval.replace(u"\n", "<br/>")
+       # cval=cval.replace(u"\n", "<br/>")
         
         self.value = cval
         self.bg=getCellColor(cell.fill.fgColor, WBCOLORS)
@@ -308,7 +307,7 @@ class wikiCell():
         wikiCellStyle= wikiStyle(cellstyle)
         
         #if self.value != None and self.value != "":
-        if INLINE_FMT:
+        if not "\n" in self.value:
             if self.merged:
                 return ""
             wikicellstr=""
@@ -317,7 +316,7 @@ class wikiCell():
             wikicellstr+= self.value
 
         else:
-            wikicellstr="|"
+            wikicellstr=""
             if wikiCellStyle != "":
                 wikicellstr += wikiCellStyle + "|"
             wikicellstr+="\n" + self.value+"\n"
@@ -346,15 +345,11 @@ class wikiRow():
             colwidths=None
 
         self.rowwiki="| "
-        if INLINE_FMT:
-            cellList=[]
-            for cell in celllist:
-                if not cell.merged:
-                    cellList.append(cell.getWikiStr(self.style.keys(),colwidths))
-            self.rowwiki+="|| ".join(cellList)+"\n"
-        else:
-            for cell in celllist:
-                self.rowwiki+=cell.getWikiStr(self.style.keys(),colwidths)
+        cellList=[]
+        for cell in celllist:
+            if not cell.merged:
+                cellList.append(cell.getWikiStr(self.style.keys(),colwidths))
+        self.rowwiki+="|| ".join(cellList)+"\n"
 
     def getWikiStr(self,tblstyle=[]): 
         rowstyle={}
