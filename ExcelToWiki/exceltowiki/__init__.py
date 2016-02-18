@@ -223,20 +223,24 @@ class wikiCell():
                 
         self.cell = cell
         cval=""
+            
         try:
-            if isinstance(cell.value, unicode):
-                cval=cell.value.strip()
-            if cell.is_date:
-                cval=self.__doDateFmt()
-            elif cell.number_format.endswith("%"):
-                dotind = cell.number_format.find(".")
-                if dotind == -1:
-                    fmtStr = "%0d%%"
-                else:
-                    fmtStr = "%" + str(dotind) + ".%d"%(len(cell.number_format) - dotind - 2) + "f%%"
-                cval = unicode(fmtStr % (cell.value * 100),'utf-8')
+            if cell.value == None:
+                cval="&nbsp;"
             else:
-                cval=unicode(str(cell.value),'utf-8').strip()
+                if isinstance(cell.value, unicode):
+                    cval=cell.value.strip()
+                if cell.is_date:
+                    cval=self.__doDateFmt()
+                elif cell.number_format.endswith("%"):
+                    dotind = cell.number_format.find(".")
+                    if dotind == -1:
+                        fmtStr = "%0d%%"
+                    else:
+                        fmtStr = "%" + str(dotind) + ".%d"%(len(cell.number_format) - dotind - 2) + "f%%"
+                    cval = unicode(fmtStr % (cell.value * 100),'utf-8')
+                else:
+                    cval=unicode(str(cell.value),'utf-8').strip()
         except:
                 cval="" # not sure what to do here
             

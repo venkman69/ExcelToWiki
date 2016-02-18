@@ -8,7 +8,6 @@ Use is trivial as shown below::
     # if you want || double-pipe style wiki output then set INLINE_FMT=True (default)
     # if you want | single-pipe line-by-line style wiki output then set INLINE_FMT=False 
     import exceltowiki
-    exceltowiki.INLINE_FMT=True
 
     e2w = excelToWiki("./test.xlsx",["Sheet1"],"blue","yellow")
     print e2w.sheetnames
@@ -40,7 +39,11 @@ exceltowiki can capture:
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured. 
 
-Release Nots: 0.1.16
+Release Notes: 0.1.17
+--------------------- 
+For better presentation of empty cells in wiki the cell contents are replaced with '&nbsp;' this retains any spacing/sizing related nature of the table which would otherwise collapse.
+
+Release Notes: 0.1.16
 --------------------- 
 Wiki text within a cell was not being formatted via wiki because of being inlined. Slight update to fix this.
 The 'INLINE_FMT' flag is now deprecated.
