@@ -353,7 +353,8 @@ class wikiRow():
         for cell in celllist:
             if not cell.merged:
                 cellList.append(cell.getWikiStr(self.style.keys(),colwidths))
-        self.rowwiki+="|| ".join(cellList)+"\n"
+        # also handle the special case of using single pipe when a return character is encountered
+        self.rowwiki+=("|| ".join(cellList)+"\n").replace("\n||","\n|") 
 
     def getWikiStr(self,tblstyle=[]): 
         rowstyle={}

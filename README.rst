@@ -5,8 +5,6 @@ ExcelToWiki
 Use is trivial as shown below::
 
     from exceltowiki import exceltowiki 
-    # if you want || double-pipe style wiki output then set INLINE_FMT=True (default)
-    # if you want | single-pipe line-by-line style wiki output then set INLINE_FMT=False 
     import exceltowiki
 
     e2w = excelToWiki("./test.xlsx",["Sheet1"],"blue","yellow")
@@ -38,6 +36,10 @@ exceltowiki can capture:
 
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured. 
+
+Release Notes: 0.1.18
+--------------------- 
+Inline double-pipe separator had a bug where a newline in the cell requires the wiki table to use a single pipe character.
 
 Release Notes: 0.1.17
 --------------------- 
