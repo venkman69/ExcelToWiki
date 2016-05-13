@@ -169,11 +169,15 @@ def wikiStyle(style,passthrough=None):
         span.append("colspan=%s"%(style["colspan"]))
     if style.has_key("rowspan") and style["rowspan"] !=None:
         span.append("rowspan=%s"%(style["rowspan"]))
+    if style.has_key("align") and style["align"] != None:
+        align="""align="%s" """%style["align"]
+    else:
+        align=""
     if passthrough:
         resstyle.extend(passthrough)
     if len(span) == 0 and len(resstyle)==0:
         return ""
-    return """%s style="%s" """%(" ".join(span),  ";".join(resstyle))
+    return """%s style="%s" %s """%(" ".join(span),  ";".join(resstyle),align)
 
 def getColRowSpan(mergeDef):
     #merge def is like A1:B2
@@ -271,6 +275,7 @@ class wikiCell():
         self.style["colspan"]=colspan
         self.style["rowspan"]=rowspan
         self.style["width"]=self.width
+        self.style["align"]=self.cell.alignment.horizontal
     def __doDateFmt(self):
         """Returns string representation for a few fixed formats of excel dates"""
         # support a few popular formats but not everything
@@ -282,19 +287,56 @@ class wikiCell():
         #m/d;@
         # [$-409] is a locale string - we will assume english for now
         # the @ implies 'as is'
-        if "m/d/yy\ h:mm\ AM/PM" in self.cell.number_format:
-            return self.cell.value.strftime("%m/%d/%y %I:%M %p")
-        if "m/d/yy\ h:mm" in self.cell.number_format:
-            return self.cell.value.strftime("%m/%d/%y %H:%M")
-        if "mmm\-yy" in self.cell.number_format:
-            return self.cell.value.strftime("%b-%y")
-        if "mmmm\-yy" in self.cell.number_format:
-            return self.cell.value.strftime("%B-%y")
-        if "mmmm\ d\,\ yyyy" in self.cell.number_format:
-            return self.cell.value.strftime("%B %d, %Y")
-        if "m/d" in self.cell.number_format:
-            return self.cell.value.strftime("%m/%d")
-        
+        strfstr=""
+        strftimemap={
+                 "h":"%H", #one or more 'h' is still hours
+                 "h:mm":"%H:%M",
+                 "hh:mm":"%H:%M",
+                 "h:m":"%H:%M",
+                 "AM/PM":"%p",
+                 }
+        strfdatemap={
+                 "ddd":"%a",
+                 "d":"%d",
+                 "dd":"%d",
+                 "mmmm":"%B",
+                 "mmm":"%b",
+                 "mm":"%m",
+                 "m":"%m",
+                 "yyyy":"%Y",
+                 "yy":"%y",
+                 "y":"%y",
+                 "s":"%S",
+                 "ss":"%S",
+                 "\\ ":" ",
+                 "[$-":"",
+                 "409":"",
+                 "]":"",
+                 ";@":"",
+                 "\\,\\":",",
+                 "\\-":"-",
+                 "\\- ":"- ",
+                 "\\,\\ ":", ",
+                 }
+        # find AM/PM
+        AMPM=False
+        if "AM/PM" in self.cell.number_format:
+            AMPM=True
+        fmt=False
+        for tok in re.split(r'([dmyh:]+|[ ]+|\W+)',self.cell.number_format):
+            if strfdatemap.has_key(tok):
+                fmt=True
+                strfstr+=strfdatemap[tok]
+            elif strftimemap.has_key(tok):
+                fmt=True
+                if AMPM:
+                    strfstr+=strftimemap[tok].replace("H","I")+"%p"
+                else:
+                    strfstr+=strftimemap[tok]
+            else:
+                strfstr+=tok
+        if fmt:
+            return self.cell.value.strftime(strfstr)
         # if all else fails return a string rep of the entire datetime default
         return str(self.cell.value)
 

@@ -21,7 +21,7 @@ Use is trivial as shown below::
 
 Options are:: 
 
-    exceltowiki(excelworkbook, [list of sheet names to process], caption foreground color, caption background color) 
+    exceltowiki(excelworkbook, [list of sheet names to process], caption foreground color, caption background color, preserve widths) 
 
 Where caption is set from the sheet name (no way to currently modify this). 
 
@@ -36,6 +36,12 @@ exceltowiki can capture:
 
 
 exceltowiki currently cannot capture anything more complex than the above list. Features such as 'format as table', conditional formatting, and other advanced items are not inspected or captured. For these, only the data value in the cells will be captured. 
+
+Release Notes: 0.1.19
+--------------------- 
+Added a better handler for date format detection and conversion. This is still very hacky but it works. 
+MS date format to datetime strftime is never going to be straight forward until there is a method to 
+obtain the resulting formatted string by itself.
 
 Release Notes: 0.1.18
 --------------------- 
